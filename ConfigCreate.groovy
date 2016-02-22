@@ -42,6 +42,13 @@ def addFileToJobsList(File file, jobs) {
     jobs << curJob
 }
 
+def writeJsonToFile(String json, String fileName) {
+    new File(WORKSPACE + '/configJson').mkdir()
+    new File(WORKSPACE + '/configJson', fileName).withWriter('utf-8') { writer ->
+        writer.write(json)
+    }
+}
+
 class Config {
     def jobs
     def globals
@@ -77,4 +84,4 @@ traverseWorkspaceDir(fullPath, jobs)
 def testConfig = new Config()
 testConfig.globals = globals
 testConfig.jobs = jobs
-println(JsonOutput.toJson(testConfig))
+writeJsonToFile(JsonOutput.toJson(testConfig), "TestConfig.json")
