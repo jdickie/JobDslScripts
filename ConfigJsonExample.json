@@ -1,0 +1,41 @@
+{
+  "jobs": [
+    {
+      "name" : "TestJobCreatedByJSON",
+      "folderName" : "StageX",
+      "cookbook" : "ApiTestCookbook",
+      "params" : [
+        {
+          "name" : "SSH_SERVER",
+          "type" : "string",
+          "value" : "dev-gdickie.npr.org"
+        },
+        {
+          "name" : "TEST_PHP_FILE",
+          "type" : "string",
+          "value" : "TestStationsApi.php"
+        },
+        {
+          "name" : "TEST_BASE_DIR",
+          "type" : "string",
+          "value" : "/www/netsite-docs/qa/unittest/"
+        },
+        {
+          "name" : "TEST_DIR",
+          "type" : "string",
+          "value" : "api/stations/"
+        },
+        {
+          "name" : "SSH_USER",
+          "type" : "string",
+          "value" : "gdickie"
+        }
+      ],
+      "remoteHost" : "gdickie@dev-gdickie.npr.org:22",
+      "ssh_user" : "gdickie",
+      "test_file" : "api/bus/TestStationsApi",
+      "remoteCommand" : "cd ${TEST_BASE_DIR}\nphpunit -c phpunit.xml ${TEST_DIR}/${TEST_PHP_FILE}",
+      "template" : "ApiPHPUnitTemplate"
+    }
+  ]
+}
