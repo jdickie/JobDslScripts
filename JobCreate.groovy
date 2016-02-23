@@ -1,5 +1,4 @@
 import groovy.json.JsonSlurper
-import utilities
 
 /**
  * JobCreate
@@ -8,6 +7,16 @@ import utilities
  */
 def parser = new JsonSlurper()
 def Config = parser.parseText(CONFIG_JSON)
+def namePrefix = ""
+
+if (Config.globals) {
+    // Create folder
+    folder(Config.globals.folderName) {
+        displayName(Config.globals.folderName)
+        description("")
+    }
+    namePrefix = Config.globals.folderName ? Config.globals.folderName + "/" : namePrefix
+}
 
 /**
  * Go through each job and change the parameters based on the
@@ -16,14 +25,9 @@ def Config = parser.parseText(CONFIG_JSON)
 Config.jobs.each {
     _job ->
         // This is JobsDSL code below
-        job(_job.name) {
+        job(namePrefix + _job.testName) {
             parameters {
-                _job.params.each {
-                    _param ->
-                        if (_param.type == "string") {
-                            stringParam(_param.name, _param.value)
-                        }
-                }
+                stringParam("TEST_NAME", _job.name)
             }
             if (_job.remoteHost && _job.remoteCommand) {
                 // Have to manipulate XML directly here
