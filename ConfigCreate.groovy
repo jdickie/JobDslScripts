@@ -20,14 +20,21 @@ JUNIT_REMOTECOMMAND = "~/testrunner.sh http://\${TEST_SERVER}/new_cms/servlet/ru
 JUNIT_TABNAME = "Seamus ${shortEnvName}"
 BASE_TEST_NAME = "${folderName}_"
 def lists = [ [name: PHPUNIT_TABNAME, regex: "${BASE_TEST_NAME}Api.*"], [name: JUNIT_TABNAME, regex: "${BASE_TEST_NAME}Seamus.*"]]
-
+def masters = []
 
 def traverseWorkspaceDir(File path, jobs) {
+    phpUnitMaster = new MultiJob()
+    phpUnitMaster.name = "${BASE_TEST_NAME}Api_Master"
+    phpUnitMaster.listView = PHPUNIT_TABNAME
+
     path.traverse { file ->
         if (!file.isDirectory() && !(file.name.matches(/^\.[A-z]*/))) {
             addFileToJobsList(file, jobs)
+            phpUnitMaster.jobs << BASE_TEST_NAME + "Api_" + file.name.replaceAll(/\.[a-z]*$/, "")
         }
     }
+
+    jobs << phpUnitMaster
 }
 
 def JUnitTestSuites = [
@@ -88,6 +95,10 @@ def JUnitTestSuites = [
 ]
 
 def traverseJunitSuites(junitSuites, jobs) {
+    def jUnitMasterJob = new MultiJob()
+    jUnitMasterJob.name = "${BASE_TEST_NAME}Seamus_Master"
+    jUnitMasterJob.listView = JUNIT_TABNAME
+
     junitSuites.each { String suite ->
         curJob = new Job()
         curJob.name = suite
@@ -95,9 +106,11 @@ def traverseJunitSuites(junitSuites, jobs) {
         curJob.remoteCommand = JUNIT_REMOTECOMMAND
         curJob.listView = JUNIT_TABNAME
         curJob.testName = suite.toUpperCase()
+        jUnitMasterJob.jobs << suite
 
         jobs << curJob
     }
+    jobs << jUnitMasterJob
 }
 
 def String getFileExtension(String name) {
@@ -109,7 +122,7 @@ def addFileToJobsList(File file, jobs) {
     curJob = new Job()
     switch (getFileExtension(file.name).toUpperCase()) {
         case PHPUNIT:
-            curJob.name = BASE_TEST_NAME + "API_" + file.name.replaceAll(/\.[a-z]*$/, "")
+            curJob.name = BASE_TEST_NAME + "Api_" + file.name.replaceAll(/\.[a-z]*$/, "")
             curJob.template = PHPUNIT_TEMPLATE
             curJob.remoteCommand = PHPUNIT_REMOTECOMMAND
             curJob.listView = PHPUNIT_TABNAME
@@ -157,6 +170,7 @@ class Job {
     def listView
     def testName
     def testPath
+    def type = "job"
 }
 
 class Globals {
@@ -167,6 +181,8 @@ class Globals {
 class MultiJob {
     def name
     def listView
+    def jobs = []
+    def type = "master"
 }
 
 def globals = new Globals()

@@ -128,24 +128,39 @@ Config.lists.each { list ->
  * Go through each job and change the parameters based on the
  * given template.
  */
-Config.jobs.each {
-    _job ->
-        job(namePrefix + _job.name) {
-            parameters {
-                stringParam("TEST_NAME", _job.testName)
-                stringParam("TEST_PATH", _job.testPath)
+Config.jobs.each { _job ->
+    switch (_job.type) {
+        case 'job':
+            job(namePrefix + _job.name) {
+                parameters {
+                    stringParam("TEST_NAME", _job.testName)
+                    stringParam("TEST_PATH", _job.testPath)
+                }
+                if (_job.remoteHost && _job.remoteCommand) {
+                    // Have to manipulate XML directly here
+                    configure {
+                        project ->
+                            project / 'builders' / 'org.jvnet.hudson.plugins.SSHBuilder' {
+                                'siteName'(_job.remoteHost)
+                                'command'(_job.remoteCommand)
+                            }
+                    }
+                }
+                using(_job.template)
             }
-            if (_job.remoteHost && _job.remoteCommand) {
-                // Have to manipulate XML directly here
-                configure {
-                    project ->
-                        project / 'builders' / 'org.jvnet.hudson.plugins.SSHBuilder' {
-                            'siteName'(_job.remoteHost)
-                            'command'(_job.remoteCommand)
+            break;
+        case 'master':
+            multiJob(namePrefix + _job.name) {
+                steps {
+                    phase('A') {
+                        _job.jobs.each { jobName ->
+                            phaseJob(jobName)
                         }
+                    }
                 }
             }
-            using(_job.template)
-        }
+            break;
+    }
+
 }
 
