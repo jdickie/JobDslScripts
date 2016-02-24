@@ -18,8 +18,9 @@ PHPUNIT_TABNAME = "API ${shortEnvName}"
 JUNIT_TEMPLATE = "SeamusTestCookbook"
 JUNIT_REMOTECOMMAND = "~/testrunner.sh http://\${TEST_SERVER}/new_cms/servlet/runTests?tests=\${TESTSUITE}"
 JUNIT_TABNAME = "Seamus ${shortEnvName}"
+BASE_TEST_NAME = "${folderName}_"
+def lists = [ [name: PHPUNIT_TABNAME, regex: "${BASE_TEST_NAME}Api.*"], [name: JUNIT_TABNAME, regex: "${BASE_TEST_NAME}Seamus.*"]]
 
-def lists = [PHPUNIT_TABNAME, JUNIT_TABNAME]
 
 def traverseWorkspaceDir(File path, jobs) {
     path.traverse { file ->
@@ -106,20 +107,21 @@ def String getFileExtension(String name) {
 
 def addFileToJobsList(File file, jobs) {
     curJob = new Job()
-    curJob.name = file.name
     switch (getFileExtension(file.name).toUpperCase()) {
         case PHPUNIT:
+            curJob.name = BASE_TEST_NAME + "API_" + file.name.replaceAll(/\.[a-z]*$/, "")
             curJob.template = PHPUNIT_TEMPLATE
             curJob.remoteCommand = PHPUNIT_REMOTECOMMAND
             curJob.listView = PHPUNIT_TABNAME
             curJob.testPath = file.canonicalPath.replaceAll(/[\/A-z]*\/unittest/, ".")
-            curJob.testName = file.name.replaceAll(/\.[a-z]*$/, "")
+            curJob.testName = file.name
             break;
         case JUNIT:
+            curJob.name = BASE_TEST_NAME + "Seamus_" + file.name.replaceAll(/\.[a-z]*$/, "")
             curJob.template = JUNIT_TEMPLATE
             curJob.remoteCommand = JUNIT_REMOTECOMMAND
             curJob.listView = JUNIT_TABNAME
-            curJob.testName = file.name.replaceAll(/\.[a-z]*/, '')
+            curJob.testName = file.name
             break;
     }
 
@@ -127,15 +129,24 @@ def addFileToJobsList(File file, jobs) {
 }
 
 def writeJsonToFile(String json, String fileName) {
-    new File(WORKSPACE + '/configJson').mkdir()
-    new File(WORKSPACE + '/configJson', fileName).withWriter('utf-8') { writer ->
+    new File(WORKSPACE + "/" + CONFIG_DIR).mkdir()
+    new File(WORKSPACE + "/" + CONFIG_PATH).withWriter('utf-8') { writer ->
         writer.write(json)
     }
 }
 
+/*
+Maps to a nested view that will contain pre-conditioned
+tabs inside (e.g. Active, All, Quarantine...)
+ */
+class List {
+    def displayName
+    def regex
+}
+
 class Config {
     def jobs
-    def lists
+    def lists = []
     def globals
 }
 
@@ -153,6 +164,11 @@ class Globals {
     def folderName
 }
 
+class MultiJob {
+    def name
+    def listView
+}
+
 def globals = new Globals()
 globals.folderName = folderName
 globals.serverName = SERVER_NAME
@@ -162,5 +178,10 @@ traverseJunitSuites(JUnitTestSuites, jobs)
 def testConfig = new Config()
 testConfig.globals = globals
 testConfig.jobs = jobs
-testConfig.lists = lists
+lists.each { list ->
+    curList = new List()
+    curList.displayName = list.name
+    curList.regex = list.regex
+    testConfig.lists << curList
+}
 writeJsonToFile(JsonOutput.toJson(testConfig), "TestConfig.json")
