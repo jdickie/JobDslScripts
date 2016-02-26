@@ -46,28 +46,30 @@ Config.lists.each { list ->
         }
     } else {
         nestedView(namePrefix + list.displayName) {
-            list.views.each { view ->
-                listView("${view.name}") {
-                    jobFilters {
-                        regex {
-                            matchType(MatchType.INCLUDE_MATCHED)
-                            matchValue(RegexMatchValue.NAME)
-                            regex(list.regex)
+            views {
+                list.views.each { view ->
+                    listView("${view.name}") {
+                        jobFilters {
+                            regex {
+                                matchType(MatchType.INCLUDE_MATCHED)
+                                matchValue(RegexMatchValue.NAME)
+                                regex(list.regex)
+                            }
+                            status {
+                                matchType((view.statusMatchType == "exclude") ? MatchType.EXCLUDE_MATCHED : MatchType.INCLUDE_MATCHED)
+                                status(view.status == "disabled" ? Status.DISABLED : Status.FAILED)
+                            }
                         }
-                        status {
-                            matchType((view.statusMatchType == "exclude") ? MatchType.EXCLUDE_MATCHED : MatchType.INCLUDE_MATCHED)
-                            status(view.status == "disabled" ? Status.DISABLED : Status.FAILED)
+                        columns {
+                            status()
+                            weather()
+                            name()
+                            lastSuccess()
+                            lastFailure()
+                            lastDuration()
+                            buildButton()
+                            lastBuildConsole()
                         }
-                    }
-                    columns {
-                        status()
-                        weather()
-                        name()
-                        lastSuccess()
-                        lastFailure()
-                        lastDuration()
-                        buildButton()
-                        lastBuildConsole()
                     }
                 }
             }
