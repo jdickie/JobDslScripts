@@ -1,4 +1,6 @@
 import groovy.json.JsonOutput
+import javaposse.jobdsl.dsl.views.jobfilter.MatchType
+import javaposse.jobdsl.dsl.views.jobfilter.Status
 
 def startingRoot = ROOT_QA_PATH
 def folderName = FOLDER_NAME
@@ -12,20 +14,55 @@ def shortEnvName = folderName.replaceAll("/[a-z]+/", "")
 PHPUNIT = "PHP"
 JUNIT = "JAVA"
 PHPUNIT_TEMPLATE = "ApiTestCookbook"
-PHPUNIT_REMOTECOMMAND = "cd \${TEST_BASE_DIR}\nphpunit -c phpunit.xml \${TEST_DIR}/\${TEST_PHP_FILE}"
-PHPUNIT_TABNAME = "API ${shortEnvName}"
+PHPUNIT_REMOTECOMMAND = "cd _TEST_BASE_DIR_\nphpunit -c phpunit.xml _TEST_DIR_/_TEST_PHP_FILE_"
+PHPUNIT_TABNAME = "${shortEnvName}_API"
 
 JUNIT_TEMPLATE = "SeamusTestCookbook"
-JUNIT_REMOTECOMMAND = "~/testrunner.sh http://\${TEST_SERVER}/new_cms/servlet/runTests?tests=\${TESTSUITE}"
-JUNIT_TABNAME = "Seamus ${shortEnvName}"
+JUNIT_REMOTECOMMAND = "~/testrunner.sh http://_TEST_SERVER_/new_cms/servlet/runTests?tests=_TESTSUITE_"
+JUNIT_TABNAME = "${folderName}_Seamus"
 BASE_TEST_NAME = "${folderName}_"
-def lists = [ [name: PHPUNIT_TABNAME, regex: "${BASE_TEST_NAME}Api.*"], [name: JUNIT_TABNAME, regex: "${BASE_TEST_NAME}Seamus.*"]]
-def masters = []
+def lists = [
+        [name: PHPUNIT_TABNAME, regex: "${BASE_TEST_NAME}Api.*", subListRegex:"${BASE_TEST_NAME}Api.*",
+        views: [
+                [name: "Active", regex: "${BASE_TEST_NAME}Api.*",
+                 status: "disabled",
+                 statusMatchType: MatchType.EXCLUDE_MATCHED],
+                [name: "Failed", regex: "${BASE_TEST_NAME}Api.*",
+                 status: "failed",
+                 statusMatchType: MatchType.INCLUDE_MATCHED],
+                [name: "Quarantine", regex: "${BASE_TEST_NAME}Api.*",
+                 status: "disabled",
+                 statusMatchType: MatchType.INCLUDE_MATCHED]
+        ]],
+        [name: JUNIT_TABNAME, regex: "${BASE_TEST_NAME}Seamus.*", views: [
+                [name: "Active", regex: "${BASE_TEST_NAME}Seamus.*",
+                 status: "disabled",
+                 statusMatchType: MatchType.EXCLUDE_MATCHED],
+                [name: "Failed", regex: "${BASE_TEST_NAME}Seamus.*",
+                 status: "failed",
+                 statusMatchType: MatchType.INCLUDE_MATCHED],
+                [name: "Quarantine", regex: "${BASE_TEST_NAME}Seamus.*",
+                 status: "disabled",
+                 statusMatchType: MatchType.INCLUDE_MATCHED]
+        ]],
+        [name: "${BASE_TEST_NAME}Master", regex: ".*_Master", views: []],
+        [name: "${BASE_TEST_NAME}Carbon", regex: "${BASE_TEST_NAME}Carbon.*", views: [
+                [name: "Active", regex: "${BASE_TEST_NAME}Carbon.*",
+                 status: "disabled",
+                 statusMatchType: MatchType.EXCLUDE_MATCHED],
+                [name: "Failed", regex: "${BASE_TEST_NAME}Carbon.*",
+                 status: "failed",
+                 statusMatchType: "include"],
+                [name: "Quarantine", regex: "${BASE_TEST_NAME}Carbon.*",
+                 status: "disabled",
+                 statusMatchType: "include"]
+        ]]
+]
 
 def traverseWorkspaceDir(File path, jobs) {
     phpUnitMaster = new MultiJob()
     phpUnitMaster.name = "${BASE_TEST_NAME}Api_Master"
-    phpUnitMaster.listView = PHPUNIT_TABNAME
+    phpUnitMaster.listView = "${BASE_TEST_NAME}Master"
 
     path.traverse { file ->
         if (!file.isDirectory() && !(file.name.matches(/^\.[A-z]*/))) {
@@ -97,15 +134,15 @@ def JUnitTestSuites = [
 def traverseJunitSuites(junitSuites, jobs) {
     def jUnitMasterJob = new MultiJob()
     jUnitMasterJob.name = "${BASE_TEST_NAME}Seamus_Master"
-    jUnitMasterJob.listView = JUNIT_TABNAME
+    jUnitMasterJob.listView = "${FOLDER_NAME}_Master"
 
     junitSuites.each { String suite ->
         curJob = new Job()
-        curJob.name = suite
+        curJob.name = BASE_TEST_NAME + "Seamus_" + suite.replaceAll(/\.[a-z]*$/, "")
         curJob.template = JUNIT_TEMPLATE
-        curJob.remoteCommand = JUNIT_REMOTECOMMAND
         curJob.listView = JUNIT_TABNAME
         curJob.testName = suite.toUpperCase()
+        curJob.remoteCommand = "~/testrunner.sh http://${SERVER_NAME}/new_cms/servlet/runTests?tests=${suite}"
         jUnitMasterJob.jobs << suite
 
         jobs << curJob
@@ -124,17 +161,18 @@ def addFileToJobsList(File file, jobs) {
         case PHPUNIT:
             curJob.name = BASE_TEST_NAME + "Api_" + file.name.replaceAll(/\.[a-z]*$/, "")
             curJob.template = PHPUNIT_TEMPLATE
-            curJob.remoteCommand = PHPUNIT_REMOTECOMMAND
+
             curJob.listView = PHPUNIT_TABNAME
             curJob.testPath = file.canonicalPath.replaceAll(/[\/A-z]*\/unittest/, ".")
             curJob.testName = file.name
+            curJob.remoteCommand = "cd /www/netsite-docs/\nphpunit -c phpunit.xml ${curJob.testPath}/${curJob.testName}"
             break;
         case JUNIT:
             curJob.name = BASE_TEST_NAME + "Seamus_" + file.name.replaceAll(/\.[a-z]*$/, "")
             curJob.template = JUNIT_TEMPLATE
-            curJob.remoteCommand = JUNIT_REMOTECOMMAND
             curJob.listView = JUNIT_TABNAME
             curJob.testName = file.name
+            curJob.remoteCommand = JUNIT_REMOTECOMMAND
             break;
     }
 
@@ -155,6 +193,14 @@ tabs inside (e.g. Active, All, Quarantine...)
 class List {
     def displayName
     def regex
+    def views = []
+}
+
+class SubList {
+    def displayName
+    def regex
+    def status
+    def statusMatchType
 }
 
 class Config {
@@ -198,6 +244,7 @@ lists.each { list ->
     curList = new List()
     curList.displayName = list.name
     curList.regex = list.regex
+    curList.views = list.views
     testConfig.lists << curList
 }
 writeJsonToFile(JsonOutput.toJson(testConfig), "TestConfig.json")
