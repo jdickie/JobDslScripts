@@ -77,7 +77,7 @@ def writeJsonToFile(String json, String fileName) {
 
 def globals = new Globals()
 globals.folderName = folderName
-globals.serverName = SERVER_NAME
+globals.serverName = ENVIRONMENT_SSH_HOST
 
 phpUnitMaster = new MultiJob()
 phpUnitMaster.name = "${BASE_TEST_NAME}Api_Master"
