@@ -22,41 +22,9 @@ JUNIT_REMOTECOMMAND = "~/testrunner.sh http://_TEST_SERVER_/new_cms/servlet/runT
 JUNIT_TABNAME = "${folderName}_Seamus"
 BASE_TEST_NAME = "${folderName}_"
 def lists = [
-        [name: PHPUNIT_TABNAME, regex: "${BASE_TEST_NAME}Api.*", subListRegex:"${BASE_TEST_NAME}Api.*",
-        views: [
-                [name: "Active", regex: "${BASE_TEST_NAME}Api.*",
-                 status: "disabled",
-                 statusMatchType: MatchType.EXCLUDE_MATCHED],
-                [name: "Failed", regex: "${BASE_TEST_NAME}Api.*",
-                 status: "failed",
-                 statusMatchType: MatchType.INCLUDE_MATCHED],
-                [name: "Quarantine", regex: "${BASE_TEST_NAME}Api.*",
-                 status: "disabled",
-                 statusMatchType: MatchType.INCLUDE_MATCHED]
-        ]],
-        [name: JUNIT_TABNAME, regex: "${BASE_TEST_NAME}Seamus.*", views: [
-                [name: "Active", regex: "${BASE_TEST_NAME}Seamus.*",
-                 status: "disabled",
-                 statusMatchType: MatchType.EXCLUDE_MATCHED],
-                [name: "Failed", regex: "${BASE_TEST_NAME}Seamus.*",
-                 status: "failed",
-                 statusMatchType: MatchType.INCLUDE_MATCHED],
-                [name: "Quarantine", regex: "${BASE_TEST_NAME}Seamus.*",
-                 status: "disabled",
-                 statusMatchType: MatchType.INCLUDE_MATCHED]
-        ]],
-        [name: "${BASE_TEST_NAME}Master", regex: ".*_Master", views: []],
-        [name: "${BASE_TEST_NAME}Carbon", regex: "${BASE_TEST_NAME}Carbon.*", views: [
-                [name: "Active", regex: "${BASE_TEST_NAME}Carbon.*",
-                 status: "disabled",
-                 statusMatchType: MatchType.EXCLUDE_MATCHED],
-                [name: "Failed", regex: "${BASE_TEST_NAME}Carbon.*",
-                 status: "failed",
-                 statusMatchType: "include"],
-                [name: "Quarantine", regex: "${BASE_TEST_NAME}Carbon.*",
-                 status: "disabled",
-                 statusMatchType: "include"]
-        ]]
+        [name: PHPUNIT_TABNAME, regex: "${BASE_TEST_NAME}Api.*"],
+        [name: JUNIT_TABNAME, regex: "${BASE_TEST_NAME}Seamus.*"],
+        [name: "${BASE_TEST_NAME}Carbon", regex: "${BASE_TEST_NAME}Carbon.*"]
 ]
 
 def traverseWorkspaceDir(File path, jobs) {
@@ -193,14 +161,6 @@ tabs inside (e.g. Active, All, Quarantine...)
 class List {
     def displayName
     def regex
-    def views = []
-}
-
-class SubList {
-    def displayName
-    def regex
-    def status
-    def statusMatchType
 }
 
 class Config {
@@ -244,7 +204,6 @@ lists.each { list ->
     curList = new List()
     curList.displayName = list.name
     curList.regex = list.regex
-    curList.views = list.views
     testConfig.lists << curList
 }
 writeJsonToFile(JsonOutput.toJson(testConfig), "TestConfig.json")

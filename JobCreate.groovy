@@ -1,4 +1,5 @@
 import groovy.json.JsonSlurper
+import javaposse.jobdsl.dsl.views.ListView
 import javaposse.jobdsl.dsl.views.jobfilter.MatchType
 import javaposse.jobdsl.dsl.views.jobfilter.RegexMatchValue
 import javaposse.jobdsl.dsl.views.jobfilter.Status
@@ -23,58 +24,87 @@ if (Config.globals) {
     }
 }
 
+listView(namePrefix + Config.globals.folderName + "_Master") {
+    jobFilters {
+        regex {
+            matchType(MatchType.INCLUDE_MATCHED)
+            matchValue(RegexMatchValue.NAME)
+            regex(".*Master")
+        }
+    }
+    columns {
+        status()
+        weather()
+        name()
+        lastSuccess()
+        lastFailure()
+        lastDuration()
+        buildButton()
+        lastBuildConsole()
+    }
+}
+
+/**
+ * @TODO: Investigate once we get more into PHPUnit abstraction
+ */
 Config.lists.each { list ->
-    if (list.name =~ /Master/) {
-        listView("${list.name}") {
-            jobFilters {
-                regex {
-                    matchType(MatchType.INCLUDE_MATCHED)
-                    matchValue(RegexMatchValue.NAME)
+    nestedView(namePrefix + list.displayName) {
+        views {
+            listView("${list.displayName}_Active") {
+                jobs {
                     regex(list.regex)
                 }
+                columns {
+                    status()
+                    weather()
+                    name()
+                    lastSuccess()
+                    lastFailure()
+                    lastDuration()
+                    buildButton()
+                    lastBuildConsole()
+                }
             }
-            columns {
-                status()
-                weather()
-                name()
-                lastSuccess()
-                lastFailure()
-                lastDuration()
-                buildButton()
-                lastBuildConsole()
+            listView("${list.displayName}_Quarantine") {
+                jobs {
+                    regex(list.regex)
+                }
+                statusFilter(ListView.StatusFilter.DISABLED)
+                columns {
+                    status()
+                    weather()
+                    name()
+                    lastSuccess()
+                    lastFailure()
+                    lastDuration()
+                    buildButton()
+                    lastBuildConsole()
+                }
             }
-        }
-    } else {
-        nestedView(namePrefix + list.displayName) {
-            views {
-                list.views.each { view ->
-                    listView("${view.name}") {
-                        jobFilters {
-                            regex {
-                                matchType(MatchType.INCLUDE_MATCHED)
-                                matchValue(RegexMatchValue.NAME)
-                                regex(list.regex)
-                            }
-                            status {
-                                matchType((view.statusMatchType == "exclude") ? MatchType.EXCLUDE_MATCHED : MatchType.INCLUDE_MATCHED)
-                                status(view.status == "disabled" ? Status.DISABLED : Status.FAILED)
-                            }
-                        }
-                        columns {
-                            status()
-                            weather()
-                            name()
-                            lastSuccess()
-                            lastFailure()
-                            lastDuration()
-                            buildButton()
-                            lastBuildConsole()
-                        }
+            listView("${list.displayName}_Failed") {
+                jobs {
+                    regex(list.regex)
+                }
+                jobFilters {
+                    status {
+                        matchType(MatchType.EXCLUDE_UNMATCHED)
+                        status(Status.FAILED)
                     }
+                }
+                columns {
+                    status()
+                    weather()
+                    name()
+                    lastSuccess()
+                    lastFailure()
+                    lastDuration()
+                    buildButton()
+                    lastBuildConsole()
                 }
             }
         }
     }
+
 }
 
 /**
