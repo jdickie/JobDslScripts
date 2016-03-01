@@ -53,11 +53,14 @@ freeStyleJob('${testFolderName}/FetchWWW') {
     }
     scm {
         git {
-            name("Jobs DSL Scripts")
-            url('git@github.com:nprdm/www.git')
+            remote {
+                name("WWW")
+                url('git@github.com:nprdm/www.git')
+                credentials('jdickie')
+            }
+            clean(true)
+            branch('${GIT_BRANCH}')
         }
-        clean()
-        branch('${GIT_BRANCH}')
     }
     publishers {
         archiveArtifacts('**/*')
