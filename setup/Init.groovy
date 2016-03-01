@@ -116,7 +116,7 @@ freeStyleJob('${testFolderName}/ApiJobCreate') {
 freeStyleJob('${testFolderName}/ApiTestTemplate') {
     logRotator(4, 10)
     steps {
-        remote('cms@stagex.npr.org:22') {
+        remoteShell('cms@stagex.npr.org:22') {
             command('cd /www/netsite-docs/qa/unittest')
             command('phpunit -c phpunit.xml --testsuite=all')
         }
