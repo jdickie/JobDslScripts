@@ -1,7 +1,8 @@
 import groovy.json.JsonOutput
 
+
 BASE_TEST_NAME = ENVIRONMENT + "/" + ENVIRONMENT + "_"
-ROOT_QA_PATH = API_ROOT_QA_PATH ?: WORKSPACE + "www/qa/unittest/api"
+ROOT_QA_PATH = API_ROOT_QA_PATH ? WORKSPACE + "/" + API_ROOT_QA_PATH : WORKSPACE + "www/qa/unittest/api"
 
 def jobs = []
 def qaDir = new File(ROOT_QA_PATH)
@@ -41,7 +42,7 @@ class MultiJob {
 }
 
 def nestedLists = [
-        [name: "${shortEnvName}_API", regex: "${BASE_TEST_NAME}Api.*"]
+        [name: "${folderName}/${shortEnvName}_API", regex: "${BASE_TEST_NAME}Api.*"]
 ]
 
 def traverseWorkspaceDir(File path, jobs) {

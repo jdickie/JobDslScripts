@@ -12,6 +12,7 @@ def testFolderName = configuration["TEST_FOLDER_NAME"] ?: "TestGeneration"
 
 folder(testFolderName) {
     description('Creates the test tools for automatically creating Api, Seamus, and Carbon tests for a given environment.')
+    primaryView('Master')
 }
 
 freeStyleJob('${testFolderName}/Master') {
@@ -47,14 +48,16 @@ freeStyleJob('${testFolderName}/FetchWWW') {
     parameters {
         stringParam('GIT_BRANCH', 'dev', 'Git branch to pull code from')
     }
-    steps {
+    scm {
         git {
             name("Jobs DSL Scripts")
-            url('git@github.com:jdickie/JobDslScripts.git')
+            url('git@github.com:nprdm/www.git')
         }
         clean()
         branch('${GIT_BRANCH}')
-        relativeTargetDir('src')
+    }
+    publishers {
+        archiveArtifacts('**/*')
     }
 }
 
@@ -62,6 +65,10 @@ freeStyleJob('${testFolderName}/FetchWWW') {
 freeStyleJob('${testFolderName}/ApiCreateConfig') {
     logRotator(1, 5)
     parameters {
+        stringParam('ENVIRONMENT', 'StageX', 'Name given to the folder that houses all tests for this environment. Should reflect the' +
+                'server environment name.')
+        stringParam('ENVIRONMENT_SSH_HOST', 'cms@stagex.npr.org:22', 'Server to use for remote SSH-ing commands. Needs to fit the format specified' +
+                'in the Jenkins configuration under SSH remote hosts.')
         stringParam('CONFIG_FILE_PATH', 'configs/ApiTestConfig.json')
     }
     steps {
@@ -82,6 +89,10 @@ freeStyleJob('${testFolderName}/ApiCreateConfig') {
 freeStyleJob('${testFolderName}/ApiJobCreate') {
     logRotator(1, 5)
     parameters {
+        stringParam('ENVIRONMENT', 'StageX', 'Name given to the folder that houses all tests for this environment. Should reflect the' +
+                'server environment name.')
+        stringParam('ENVIRONMENT_SSH_HOST', 'cms@stagex.npr.org:22', 'Server to use for remote SSH-ing commands. Needs to fit the format specified' +
+                'in the Jenkins configuration under SSH remote hosts.')
         stringParam('CONFIG_FILE_PATH', 'configs/ApiTestConfig.json')
     }
     steps {
@@ -96,10 +107,32 @@ freeStyleJob('${testFolderName}/ApiJobCreate') {
     }
 }
 
+freeStyleJob('${testFolderName}/ApiTestTemplate') {
+    logRotator(4, 10)
+    steps {
+        remote('cms@stagex.npr.org:22') {
+            command('cd /www/netsite-docs/qa/unittest')
+            command('phpunit -c phpunit.xml --testsuite=all')
+        }
+    }
+}
+
 // Setting up lists to go inside of Test Folder
 listView('${testFolderName}/Api') {
     jobs {
         name('${testFolderName}/ApiCreateConfig')
         name('${testFolderName}/ApiJobCreate')
+    }
+}
+
+listView('${testFolderName}/Templates') {
+    jobs {
+        name('ApiTestTemplate')
+    }
+}
+
+listView('${testFolderName}/Master') {
+    jobs {
+        name('${testFolderName}/SetupEnvironment')
     }
 }
