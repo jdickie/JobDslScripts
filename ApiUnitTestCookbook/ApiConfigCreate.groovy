@@ -1,6 +1,6 @@
 import groovy.json.JsonOutput
 
-BASE_TEST_NAME = ENVIRONMENT + "_"
+BASE_TEST_NAME = ENVIRONMENT + "/" + ENVIRONMENT + "_"
 ROOT_QA_PATH = API_ROOT_QA_PATH ?: WORKSPACE + "www/qa/unittest/api"
 
 def jobs = []
