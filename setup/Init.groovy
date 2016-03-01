@@ -25,8 +25,11 @@ freeStyleJob('${testFolderName}/Master') {
     }
     scm {
         git {
-            name("Jobs DSL Scripts")
-            url('git@github.com:jdickie/JobDslScripts.git')
+            remote {
+                name("Jobs DSL Scripts")
+                url('git@github.com:jdickie/JobDslScripts.git')
+                credentials('jdickie')
+            }
         }
         clean()
         branch('dev')

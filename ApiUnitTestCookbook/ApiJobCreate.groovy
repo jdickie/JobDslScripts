@@ -11,7 +11,7 @@ import javaposse.jobdsl.dsl.views.jobfilter.Status
  */
 def parser = new JsonSlurper()
 def Config = parser.parseText(new File(WORKSPACE + "/configs/ApiTestConfig.json").text)
-def namePrefix = ""
+def namePrefix = Config.globals.folderName + "/"
 def serverName = Config.globals.serverName
 
 listView(namePrefix + Config.globals.folderName + "_Master") {
