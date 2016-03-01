@@ -15,7 +15,7 @@ folder(testFolderName) {
     primaryView('Master')
 }
 
-freeStyleJob('${testFolderName}/Master') {
+freeStyleJob("${testFolderName}/Master") {
     logRotator(1, 5)
     parameters {
         stringParam('ENVIRONMENT', 'StageX', 'Name given to the folder that houses all tests for this environment. Should reflect the' +
@@ -46,7 +46,7 @@ freeStyleJob('${testFolderName}/Master') {
 }
 
 // WWW Api tests
-freeStyleJob('${testFolderName}/FetchWWW') {
+freeStyleJob("${testFolderName}/FetchWWW") {
     logRotator(1, 5)
     parameters {
         stringParam('GIT_BRANCH', 'dev', 'Git branch to pull code from')
@@ -68,7 +68,7 @@ freeStyleJob('${testFolderName}/FetchWWW') {
 }
 
 
-freeStyleJob('${testFolderName}/ApiCreateConfig') {
+freeStyleJob("${testFolderName}/ApiCreateConfig") {
     logRotator(1, 5)
     parameters {
         stringParam('ENVIRONMENT', 'StageX', 'Name given to the folder that houses all tests for this environment. Should reflect the' +
@@ -78,7 +78,7 @@ freeStyleJob('${testFolderName}/ApiCreateConfig') {
         stringParam('CONFIG_FILE_PATH', 'configs/ApiTestConfig.json')
     }
     steps {
-        copyArtifacts('${testFolderName}/SetupEnvironment') {
+        copyArtifacts("${testFolderName}/SetupEnvironment") {
             buildSelector {
                 latestSuccessful(true)
             }
@@ -92,7 +92,7 @@ freeStyleJob('${testFolderName}/ApiCreateConfig') {
     }
 }
 
-freeStyleJob('${testFolderName}/ApiJobCreate') {
+freeStyleJob("${testFolderName}/ApiJobCreate") {
     logRotator(1, 5)
     parameters {
         stringParam('ENVIRONMENT', 'StageX', 'Name given to the folder that houses all tests for this environment. Should reflect the' +
@@ -102,7 +102,7 @@ freeStyleJob('${testFolderName}/ApiJobCreate') {
         stringParam('CONFIG_FILE_PATH', 'configs/ApiTestConfig.json')
     }
     steps {
-        copyArtifacts('${testFolderName}/ApiCreateConfig') {
+        copyArtifacts("${testFolderName}/ApiCreateConfig") {
             buildSelector {
                 latestSuccessful(true)
             }
@@ -113,7 +113,7 @@ freeStyleJob('${testFolderName}/ApiJobCreate') {
     }
 }
 
-freeStyleJob('${testFolderName}/ApiTestTemplate') {
+freeStyleJob("${testFolderName}/ApiTestTemplate") {
     logRotator(4, 10)
     steps {
         remoteShell('cms@stagex.npr.org:22') {
@@ -124,21 +124,21 @@ freeStyleJob('${testFolderName}/ApiTestTemplate') {
 }
 
 // Setting up lists to go inside of Test Folder
-listView('${testFolderName}/Api') {
+listView("${testFolderName}/Api") {
     jobs {
-        name('${testFolderName}/ApiCreateConfig')
-        name('${testFolderName}/ApiJobCreate')
+        name("${testFolderName}/ApiCreateConfig")
+        name("${testFolderName}/ApiJobCreate")
     }
 }
 
-listView('${testFolderName}/Templates') {
+listView("${testFolderName}/Templates") {
     jobs {
-        name('ApiTestTemplate')
+        name("${testFolderName}/ApiTestTemplate")
     }
 }
 
-listView('${testFolderName}/Master') {
+listView("${testFolderName}/Master") {
     jobs {
-        name('${testFolderName}/SetupEnvironment')
+        name("${testFolderName}/SetupEnvironment")
     }
 }
