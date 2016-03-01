@@ -12,17 +12,7 @@ import javaposse.jobdsl.dsl.views.jobfilter.Status
 def parser = new JsonSlurper()
 def Config = parser.parseText(new File(WORKSPACE + "/configs/ApiTestConfig.json").text)
 def namePrefix = ""
-def serverName = null
-
-if (Config.globals) {
-    namePrefix = Config.globals.folderName ? Config.globals.folderName + "/" : namePrefix
-    serverName = Config.globals.serverName ? Config.globals.serverName + "/" : null
-    // Create folder
-    folder(Config.globals.folderName) {
-        displayName(Config.globals.folderName)
-        description("Test environment for ${Config.globals.folderName}. Uses server ${serverName}.")
-    }
-}
+def serverName = Config.globals.serverName
 
 listView(namePrefix + Config.globals.folderName + "_Master") {
     jobFilters {

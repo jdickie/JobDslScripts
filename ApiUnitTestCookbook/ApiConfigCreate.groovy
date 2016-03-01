@@ -23,7 +23,6 @@ class Job {
     def name
     def remoteCommand
     def template
-    def listView
     def testName
     def testPath
     def type = "job"
@@ -59,8 +58,6 @@ def addFileToJobsList(File file, jobs) {
 
     curJob.name = BASE_TEST_NAME + "Api_" + file.name.replaceAll(/\.[a-z]*$/, "")
     curJob.template = "ApiTestTemplate"
-
-    curJob.listView = ""
     curJob.testPath = file.canonicalPath.replaceAll(/[\/A-z]*\/unittest/, ".")
     curJob.testName = file.name
     curJob.remoteCommand = "cd /www/netsite-docs/\nphpunit -c phpunit.xml ${curJob.testPath}/${curJob.testName}"
