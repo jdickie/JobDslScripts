@@ -31,7 +31,7 @@ freeStyleJob('${testFolderName}/Master') {
                 credentials('jdickie')
             }
         }
-        clean()
+        clean(true)
         branch('dev')
         relativeTargetDir('nprDSL')
     }
