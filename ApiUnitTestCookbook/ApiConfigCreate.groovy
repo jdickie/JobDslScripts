@@ -1,3 +1,4 @@
+package ApiUnitTestCookbook
 import groovy.json.JsonOutput
 
 BASE_TEST_NAME = ENVIRONMENT + "_"
