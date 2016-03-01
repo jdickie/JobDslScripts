@@ -30,10 +30,10 @@ freeStyleJob('${testFolderName}/Master') {
                 url('git@github.com:jdickie/JobDslScripts.git')
                 credentials('jdickie')
             }
+            clean(true)
+            branch('dev')
+            relativeTargetDir('nprDSL')
         }
-        clean(true)
-        branch('dev')
-        relativeTargetDir('nprDSL')
     }
     steps {
         dsl {
