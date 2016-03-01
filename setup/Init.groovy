@@ -126,19 +126,19 @@ freeStyleJob("${testFolderName}/ApiTestTemplate") {
 // Setting up lists to go inside of Test Folder
 listView("${testFolderName}/Api") {
     jobs {
-        name("${testFolderName}/ApiCreateConfig")
-        name("${testFolderName}/ApiJobCreate")
+        name("ApiCreateConfig")
+        name("ApiJobCreate")
     }
 }
 
 listView("${testFolderName}/Templates") {
     jobs {
-        name("${testFolderName}/ApiTestTemplate")
+        name("ApiTestTemplate")
     }
 }
 
 listView("${testFolderName}/Master") {
     jobs {
-        name("${testFolderName}/SetupEnvironment")
+        name("SetupEnvironment")
     }
 }
