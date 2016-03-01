@@ -129,16 +129,46 @@ listView("${testFolderName}/Api") {
         name("ApiCreateConfig")
         name("ApiJobCreate")
     }
+    columns {
+        status()
+        weather()
+        name()
+        lastSuccess()
+        lastFailure()
+        lastDuration()
+        buildButton()
+        lastBuildConsole()
+    }
 }
 
 listView("${testFolderName}/Templates") {
     jobs {
         name("ApiTestTemplate")
     }
+    columns {
+        status()
+        weather()
+        name()
+        lastSuccess()
+        lastFailure()
+        lastDuration()
+        buildButton()
+        lastBuildConsole()
+    }
 }
 
 listView("${testFolderName}/Master") {
     jobs {
-        name("SetupEnvironment")
+        name("Master")
+    }
+    columns {
+        status()
+        weather()
+        name()
+        lastSuccess()
+        lastFailure()
+        lastDuration()
+        buildButton()
+        lastBuildConsole()
     }
 }
