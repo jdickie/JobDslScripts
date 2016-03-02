@@ -1,13 +1,27 @@
 import groovy.json.JsonOutput
 
+// Fetch the environment variables in a safe manner
+def configuration = new HashMap()
+def binding = getBinding()
+configuration.putAll(binding.getVariables())
 
-BASE_TEST_NAME = ENVIRONMENT + "/" + ENVIRONMENT + "_"
-ROOT_QA_PATH = API_ROOT_QA_PATH ? WORKSPACE + "/" + API_ROOT_QA_PATH : WORKSPACE + "www/qa/unittest/api"
+if(!configuration["API_ROOT_QA_PATH"] || !configuration["ENVIRONMENT"]) {
+    println("Job failed due to one or more of the following variables not being present: " +
+            "ENVIRONMENT, API_ROOT_QA_PATH")
+    System.exit(0)
+}
+
+BASE_TEST_NAME = configuration["ENVIRONMENT"] + "/" + configuration["ENVIRONMENT"] + "_"
+ROOT_QA_PATH = WORKSPACE + "/" + configuration["API_ROOT_QA_PATH"]
+CONFIG_FOLDER_PATH = WORKSPACE + configuration["CONFIG_FOLDER_PATH"]
+
+
 
 def jobs = []
 def qaDir = new File(ROOT_QA_PATH)
-def folderName = ENVIRONMENT ?: "StageX"
+def folderName = configuration["ENVIRONMENT"]
 def shortEnvName = folderName.replaceAll("/[a-z]+/", "")
+def ApiTestTemplate = "${folderName}/ApiTestTemplate"
 
 class List {
     def displayName
@@ -58,7 +72,7 @@ def addFileToJobsList(File file, jobs) {
     curJob = new Job()
 
     curJob.name = BASE_TEST_NAME + "Api_" + file.name.replaceAll(/\.[a-z]*$/, "")
-    curJob.template = "TestGeneration/ApiTestTemplate"
+    curJob.template = ApiTestTemplate
     curJob.testPath = file.canonicalPath.replaceAll(/[\/A-z]*\/unittest/, ".")
     curJob.testName = file.name
     curJob.remoteCommand = "cd /www/netsite-docs/\nphpunit -c phpunit.xml ${curJob.testPath}/${curJob.testName}"
@@ -66,9 +80,9 @@ def addFileToJobsList(File file, jobs) {
     jobs << curJob
 }
 
-def writeJsonToFile(String json, String fileName) {
+def writeJsonToFile(String json) {
     new File(WORKSPACE + "/configs").mkdir()
-    new File(WORKSPACE + "/configs/" + fileName).withWriter('utf-8') { writer ->
+    new File(CONFIG_FOLDER_PATH).withWriter('utf-8') { writer ->
         writer.write(json)
     }
 }
@@ -94,4 +108,4 @@ nestedLists.each { list ->
     curList.regex = list.regex
     testConfig.lists << curList
 }
-writeJsonToFile(JsonOutput.toJson(testConfig), "ApiTestConfig.json")
+writeJsonToFile(JsonOutput.toJson(testConfig))

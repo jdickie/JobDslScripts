@@ -43,6 +43,10 @@ freeStyleJob(ApiMaster) {
         stringParam('ENVIRONMENT_SSH_HOST', 'cms@stagex.npr.org:22', 'Server to use for remote SSH-ing ' +
                 'commands. Needs to fit the format specified' +
                 'in the Jenkins configuration under SSH remote hosts.')
+        stringParam('API_ROOT_QA_PATH', null, 'Relative path pointing to where in the WWW codebase the PHPUnit tests are located.' +
+                'This script will search recursively through the directory to find all *.php files and generate one test job per ' +
+                'php file.'
+        )
     }
     scm {
         git {
@@ -105,6 +109,10 @@ freeStyleJob(ApiCreateConfig) {
         stringParam('ENVIRONMENT_SSH_HOST', 'cms@stagex.npr.org:22', 'Server to use for remote SSH-ing commands. Needs to fit the format specified' +
                 'in the Jenkins configuration under SSH remote hosts.')
         stringParam('CONFIG_FILE_PATH', 'configs/ApiTestConfig.json')
+        stringParam('API_ROOT_QA_PATH', null, 'Relative path pointing to where in the WWW codebase the PHPUnit tests are located.' +
+                'This script will search recursively through the directory to find all *.php files and generate one test job per ' +
+                'php file.'
+        )
     }
     steps {
         copyArtifacts(ApiMaster) {
@@ -130,7 +138,7 @@ freeStyleJob(ApiCreateConfig) {
     }
 }
 
-freeStyleJob("${testFolderName}/ApiJobCreate") {
+freeStyleJob(ApiJobCreate) {
     logRotator(seedJobDaysToKeepBuilds, seedJobBuildsToKeep)
     parameters {
         stringParam('ENVIRONMENT', 'StageX', 'Name given to the folder that houses all tests for this environment. Should reflect the' +
