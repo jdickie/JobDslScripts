@@ -16,12 +16,11 @@ ROOT_QA_PATH = WORKSPACE + "/" + configuration["API_ROOT_QA_PATH"]
 CONFIG_FOLDER_PATH = WORKSPACE + "/" + configuration["CONFIG_FILE_PATH"]
 
 
-
 def jobs = []
 def qaDir = new File(ROOT_QA_PATH)
 def folderName = configuration["ENVIRONMENT"]
 def shortEnvName = folderName.replaceAll("/[a-z]+/", "")
-APITESTTEMPLATE = "${folderName}/ApiTestTemplate"
+APITESTTEMPLATE = configuration["JOB_NAME"].replaceAll(/ApiConfigCreate/, "ApiTestTemplate")
 
 class List {
     def displayName
