@@ -5,9 +5,9 @@ def configuration = new HashMap()
 def binding = getBinding()
 configuration.putAll(binding.getVariables())
 
-if(!configuration["API_ROOT_QA_PATH"] || !configuration["ENVIRONMENT"]) {
+if(!configuration["API_ROOT_QA_PATH"] || !configuration["ENVIRONMENT"] || !configuration["API_TEST_TEMPLATE"]) {
     println("Job failed due to one or more of the following variables not being present: " +
-            "ENVIRONMENT, API_ROOT_QA_PATH")
+            "ENVIRONMENT, API_ROOT_QA_PATH, API_TEST_TEMPLATE")
     System.exit(0)
 }
 
@@ -20,7 +20,7 @@ def jobs = []
 def qaDir = new File(ROOT_QA_PATH)
 def folderName = configuration["ENVIRONMENT"]
 def shortEnvName = folderName.replaceAll("/[a-z]+/", "")
-APITESTTEMPLATE = configuration["JOB_NAME"].replaceAll(/ApiConfigCreate/, "ApiTestTemplate")
+APITESTTEMPLATE = configuration["API_TEST_TEMPLATE"]
 
 class List {
     def displayName

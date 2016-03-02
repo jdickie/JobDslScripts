@@ -116,6 +116,7 @@ freeStyleJob(ApiCreateConfig) {
                         'This script will search recursively through the directory to find all *.php files ' +
                         'and generate one test job per php file.'
         )
+        stringParam('API_TEST_TEMPLATE', ApiTestTemplate, "Please do not change this parameter.")
     }
     steps {
         copyArtifacts(FetchWWW) {
@@ -154,7 +155,8 @@ freeStyleJob(ApiJobCreate) {
                 'server environment name.')
         stringParam('ENVIRONMENT_SSH_HOST', 'cms@stagex.npr.org:22', 'Server to use for remote SSH-ing commands. Needs to fit the format specified' +
                 'in the Jenkins configuration under SSH remote hosts.')
-        stringParam('CONFIG_FILE_PATH', 'nprDSL/configs/ApiTestConfig.json')
+        stringParam('CONFIG_FILE_PATH', 'nprDSL/configs/ApiTestConfig.json', "Please do not change this parameter. Maps to where the groovy script expects" +
+                "to find a JSON defining all tests, views, and multijobs to create for this environment.")
     }
     steps {
         copyArtifacts(ApiCreateConfig) {
