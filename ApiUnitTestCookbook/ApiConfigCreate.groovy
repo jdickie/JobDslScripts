@@ -11,7 +11,7 @@ if(!configuration["API_ROOT_QA_PATH"] || !configuration["ENVIRONMENT"]) {
     System.exit(0)
 }
 
-BASE_TEST_NAME = configuration["ENVIRONMENT"] + "/" + configuration["ENVIRONMENT"] + "_"
+BASE_TEST_NAME = configuration["ENVIRONMENT"] + "_"
 ROOT_QA_PATH = WORKSPACE + "/" + configuration["API_ROOT_QA_PATH"]
 CONFIG_FOLDER_PATH = WORKSPACE + "/" + configuration["CONFIG_FILE_PATH"]
 
@@ -55,7 +55,7 @@ class MultiJob {
 }
 
 def nestedLists = [
-        [name: "${folderName}/${shortEnvName}_API", regex: "${BASE_TEST_NAME}Api.*"]
+        [name: "${shortEnvName}_API", regex: "${BASE_TEST_NAME}Api.*"]
 ]
 
 def traverseWorkspaceDir(File path, jobs) {
