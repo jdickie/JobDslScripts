@@ -29,6 +29,7 @@ def ApiCreateConfig = "${testFolderName}/ApiCreateConfig"
 def ApiJobCreate = "${testFolderName}/ApiJobCreate"
 def ApiMaster = "${testFolderName}/ApiMaster"
 def ApiTestTemplate = "${testFolderName}/ApiTestTemplate"
+def FetchWWW = "FetchWWW"
 
 folder(testFolderName) {
     description('Creates the test tools for automatically creating Api, Seamus, and Carbon tests for a given environment.')
@@ -79,7 +80,7 @@ freeStyleJob(ApiMaster) {
 }
 
 // WWW Api tests
-freeStyleJob("FetchWWW") {
+freeStyleJob(FetchWWW) {
     logRotator(seedJobDaysToKeepBuilds, seedJobBuildsToKeep)
     parameters {
         stringParam('GIT_BRANCH', 'dev', 'Git branch to pull code from')
@@ -115,6 +116,11 @@ freeStyleJob(ApiCreateConfig) {
         )
     }
     steps {
+        copyArtifacts(FetchWWW) {
+            buildSelector {
+                latestSuccessful(true)
+            }
+        }
         copyArtifacts(ApiMaster) {
             buildSelector {
                 latestSuccessful(true)
