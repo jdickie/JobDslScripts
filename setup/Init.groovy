@@ -11,10 +11,6 @@ if (!configuration["GITHUB_CI_ID"]) {
     System.exit(0)
 }
 
-// Get local cred variables
-def slurpie = new JsonSlurper()
-def secrets = slurpie.parseText(new File(secretsPath).text)
-
 // Create dir for Jobs DSL code to be checked out into
 new File('nprDSL').mkdir()
 
