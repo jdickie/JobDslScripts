@@ -24,17 +24,23 @@ def seedJobBuildsToKeep = configuration["NUM_BUILDS_TO_KEEP"] ?: 10
 def apiTestJobDaysToKeepBuild = configuration["API_TEMPLATE_DAYS_TO_KEEP_BUILD"] ?: 4
 def apiTestJobNumBuildsToKeep = configuration["API_TEMPLATE_NUM_BUILDS_TO_KEEP"] ?: 10
 
+// API BUILD NAMES
+def ApiCreateConfig = "${testFolderName}/ApiCreateConfig"
+def ApiJobCreate = "${testFolderName}/ApiJobCreate"
+def ApiMaster = "${testFolderName}/ApiMaster"
+
 folder(testFolderName) {
     description('Creates the test tools for automatically creating Api, Seamus, and Carbon tests for a given environment.')
     primaryView('Master')
 }
 
-freeStyleJob("${testFolderName}/Master") {
+freeStyleJob(ApiMaster) {
     logRotator(seedJobDaysToKeepBuilds, seedJobBuildsToKeep)
     parameters {
         stringParam('ENVIRONMENT', 'StageX', 'Name given to the folder that houses all tests for this environment. Should reflect the' +
                 'server environment name.')
-        stringParam('ENVIRONMENT_SSH_HOST', 'cms@stagex.npr.org:22', 'Server to use for remote SSH-ing commands. Needs to fit the format specified' +
+        stringParam('ENVIRONMENT_SSH_HOST', 'cms@stagex.npr.org:22', 'Server to use for remote SSH-ing ' +
+                'commands. Needs to fit the format specified' +
                 'in the Jenkins configuration under SSH remote hosts.')
     }
     scm {
@@ -56,11 +62,19 @@ freeStyleJob("${testFolderName}/Master") {
     }
     publishers {
         archiveArtifacts('**/*')
+        downstreamParameterized {
+            trigger(ApiCreateConfig) {
+                condition('SUCCESS')
+                parameters {
+                    currentBuild()
+                }
+            }
+        }
     }
 }
 
 // WWW Api tests
-freeStyleJob("${testFolderName}/FetchWWW") {
+freeStyleJob("FetchWWW") {
     logRotator(seedJobDaysToKeepBuilds, seedJobBuildsToKeep)
     parameters {
         stringParam('GIT_BRANCH', 'dev', 'Git branch to pull code from')
@@ -82,7 +96,7 @@ freeStyleJob("${testFolderName}/FetchWWW") {
 }
 
 
-freeStyleJob("${testFolderName}/ApiCreateConfig") {
+freeStyleJob(ApiCreateConfig) {
     logRotator(seedJobDaysToKeepBuilds, seedJobBuildsToKeep)
     parameters {
         stringParam('ENVIRONMENT', 'StageX', 'Name given to the folder that houses all tests for this environment. Should reflect the' +
@@ -104,6 +118,14 @@ freeStyleJob("${testFolderName}/ApiCreateConfig") {
     }
     publishers {
         archiveArtifacts('**/*')
+        downstreamParameterized {
+            trigger(ApiJobCreate) {
+                condition('SUCCESS')
+                parameters {
+                    currentBuild()
+                }
+            }
+        }
     }
 }
 
