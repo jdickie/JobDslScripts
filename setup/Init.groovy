@@ -28,6 +28,7 @@ def apiTestJobNumBuildsToKeep = configuration["API_TEMPLATE_NUM_BUILDS_TO_KEEP"]
 def ApiCreateConfig = "${testFolderName}/ApiCreateConfig"
 def ApiJobCreate = "${testFolderName}/ApiJobCreate"
 def ApiMaster = "${testFolderName}/ApiMaster"
+def ApiTestTemplate = "${testFolderName}/ApiTestTemplate"
 
 folder(testFolderName) {
     description('Creates the test tools for automatically creating Api, Seamus, and Carbon tests for a given environment.')
@@ -106,7 +107,7 @@ freeStyleJob(ApiCreateConfig) {
         stringParam('CONFIG_FILE_PATH', 'configs/ApiTestConfig.json')
     }
     steps {
-        copyArtifacts("${testFolderName}/SetupEnvironment") {
+        copyArtifacts(ApiMaster) {
             buildSelector {
                 latestSuccessful(true)
             }
@@ -139,7 +140,7 @@ freeStyleJob("${testFolderName}/ApiJobCreate") {
         stringParam('CONFIG_FILE_PATH', 'configs/ApiTestConfig.json')
     }
     steps {
-        copyArtifacts("${testFolderName}/ApiCreateConfig") {
+        copyArtifacts(ApiCreateConfig) {
             buildSelector {
                 latestSuccessful(true)
             }
@@ -150,7 +151,7 @@ freeStyleJob("${testFolderName}/ApiJobCreate") {
     }
 }
 
-freeStyleJob("${testFolderName}/ApiTestTemplate") {
+freeStyleJob(ApiTestTemplate) {
     logRotator(apiTestJobDaysToKeepBuild, apiTestJobNumBuildsToKeep)
     steps {
         remoteShell('cms@stagex.npr.org:22') {
@@ -196,7 +197,7 @@ listView("${testFolderName}/Templates") {
 
 listView("${testFolderName}/Master") {
     jobs {
-        name("Master")
+        name("ApiMaster")
     }
     columns {
         status()
