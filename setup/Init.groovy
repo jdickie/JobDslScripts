@@ -110,9 +110,10 @@ freeStyleJob(ApiCreateConfig) {
         stringParam('ENVIRONMENT_SSH_HOST', 'cms@stagex.npr.org:22', 'Server to use for remote SSH-ing commands. Needs to fit the format specified' +
                 'in the Jenkins configuration under SSH remote hosts.')
         stringParam('CONFIG_FILE_PATH', 'configs/ApiTestConfig.json')
-        stringParam('API_ROOT_QA_PATH', null, 'Relative path pointing to where in the WWW codebase the PHPUnit tests are located.' +
-                'This script will search recursively through the directory to find all *.php files and generate one test job per ' +
-                'php file.'
+        stringParam('API_ROOT_QA_PATH', 'www/qa/unittest/api',
+                'Relative path pointing to where in the WWW codebase the PHPUnit tests are located.' +
+                        'This script will search recursively through the directory to find all *.php files ' +
+                        'and generate one test job per php file.'
         )
     }
     steps {
@@ -133,7 +134,7 @@ freeStyleJob(ApiCreateConfig) {
         }
     }
     publishers {
-        archiveArtifacts('**/*')
+        archiveArtifacts('**/nprDSL')
         downstreamParameterized {
             trigger(ApiJobCreate) {
                 condition('SUCCESS')
@@ -152,7 +153,7 @@ freeStyleJob(ApiJobCreate) {
                 'server environment name.')
         stringParam('ENVIRONMENT_SSH_HOST', 'cms@stagex.npr.org:22', 'Server to use for remote SSH-ing commands. Needs to fit the format specified' +
                 'in the Jenkins configuration under SSH remote hosts.')
-        stringParam('CONFIG_FILE_PATH', 'configs/ApiTestConfig.json')
+        stringParam('CONFIG_FILE_PATH', 'nprDSL/configs/ApiTestConfig.json')
     }
     steps {
         copyArtifacts(ApiCreateConfig) {
