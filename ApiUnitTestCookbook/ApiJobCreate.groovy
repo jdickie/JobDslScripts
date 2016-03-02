@@ -4,13 +4,24 @@ import javaposse.jobdsl.dsl.views.jobfilter.MatchType
 import javaposse.jobdsl.dsl.views.jobfilter.RegexMatchValue
 import javaposse.jobdsl.dsl.views.jobfilter.Status
 
+// Fetch the environment variables in a safe manner
+def configuration = new HashMap()
+def binding = getBinding()
+configuration.putAll(binding.getVariables())
+
+if(!configuration["ENVIRONMENT"] || !configuration["CONFIG_FILE_PATH"]) {
+    println("Must provide the following job-level parameters: " +
+            "ENVIRONMENT, CONFIG_FILE_PATH")
+    System.exit(0)
+}
+
 /**
  * JobCreate
  *
  * Generates jobs by referencing templates and passing in parameters.
  */
 def parser = new JsonSlurper()
-def Config = parser.parseText(new File(WORKSPACE + "nprDSL/configs/ApiTestConfig.json").text)
+def Config = parser.parseText(new File(WORKSPACE + "/" + configuration["CONFIG_FILE_PATH"]).text)
 def namePrefix = Config.globals.folderName + "/"
 def serverName = Config.globals.serverName
 
