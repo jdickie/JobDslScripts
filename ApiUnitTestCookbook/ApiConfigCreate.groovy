@@ -72,9 +72,9 @@ def addFileToJobsList(File file, jobs) {
 
     curJob.name = BASE_TEST_NAME + "Api_" + file.name.replaceAll(/\.[a-z]*$/, "")
     curJob.template = APITESTTEMPLATE
-    curJob.testPath = file.canonicalPath.replaceAll(/[\/A-z]*\/unittest/, ".")
+    curJob.testPath = file.getPath().replaceAll(/[\/A-z]*\/unittest/, ".")
     curJob.testName = file.name
-    curJob.remoteCommand = "cd /www/netsite-docs/\nphpunit -c phpunit.xml ${curJob.testPath}/${curJob.testName}"
+    curJob.remoteCommand = "cd /www/netsite-docs/\nphpunit -c phpunit.xml ${curJob.testPath}"
 
     jobs << curJob
 }
