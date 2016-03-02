@@ -10,7 +10,7 @@ import javaposse.jobdsl.dsl.views.jobfilter.Status
  * Generates jobs by referencing templates and passing in parameters.
  */
 def parser = new JsonSlurper()
-def Config = parser.parseText(new File(WORKSPACE + "/configs/ApiTestConfig.json").text)
+def Config = parser.parseText(new File(WORKSPACE + "nprDSL/configs/ApiTestConfig.json").text)
 def namePrefix = Config.globals.folderName + "/"
 def serverName = Config.globals.serverName
 

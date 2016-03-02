@@ -13,7 +13,7 @@ if(!configuration["API_ROOT_QA_PATH"] || !configuration["ENVIRONMENT"]) {
 
 BASE_TEST_NAME = configuration["ENVIRONMENT"] + "/" + configuration["ENVIRONMENT"] + "_"
 ROOT_QA_PATH = WORKSPACE + "/" + configuration["API_ROOT_QA_PATH"]
-CONFIG_FOLDER_PATH = WORKSPACE + configuration["CONFIG_FOLDER_PATH"]
+CONFIG_FOLDER_PATH = WORKSPACE + configuration["CONFIG_FILE_PATH"]
 
 
 
@@ -81,7 +81,7 @@ def addFileToJobsList(File file, jobs) {
 }
 
 def writeJsonToFile(String json) {
-    new File(WORKSPACE + "/configs").mkdir()
+    new File(WORKSPACE + "/nprDSL/configs").mkdir()
     new File(CONFIG_FOLDER_PATH).withWriter('utf-8') { writer ->
         writer.write(json)
     }
