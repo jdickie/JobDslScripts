@@ -13,7 +13,7 @@ if(!configuration["API_ROOT_QA_PATH"] || !configuration["ENVIRONMENT"]) {
 
 BASE_TEST_NAME = configuration["ENVIRONMENT"] + "/" + configuration["ENVIRONMENT"] + "_"
 ROOT_QA_PATH = WORKSPACE + "/" + configuration["API_ROOT_QA_PATH"]
-CONFIG_FOLDER_PATH = WORKSPACE + configuration["CONFIG_FILE_PATH"]
+CONFIG_FOLDER_PATH = WORKSPACE + "/" + configuration["CONFIG_FILE_PATH"]
 
 
 
