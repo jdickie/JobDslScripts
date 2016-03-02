@@ -119,6 +119,7 @@ freeStyleJob(ApiCreateConfig) {
         copyArtifacts(FetchWWW) {
             buildSelector {
                 latestSuccessful(true)
+                targetDirectory('www')
             }
         }
         copyArtifacts(ApiMaster) {
