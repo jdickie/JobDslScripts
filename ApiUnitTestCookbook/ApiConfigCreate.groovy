@@ -21,7 +21,7 @@ def jobs = []
 def qaDir = new File(ROOT_QA_PATH)
 def folderName = configuration["ENVIRONMENT"]
 def shortEnvName = folderName.replaceAll("/[a-z]+/", "")
-def ApiTestTemplate = "${folderName}/ApiTestTemplate"
+APITESTTEMPLATE = "${folderName}/ApiTestTemplate"
 
 class List {
     def displayName
@@ -72,7 +72,7 @@ def addFileToJobsList(File file, jobs) {
     curJob = new Job()
 
     curJob.name = BASE_TEST_NAME + "Api_" + file.name.replaceAll(/\.[a-z]*$/, "")
-    curJob.template = ApiTestTemplate
+    curJob.template = APITESTTEMPLATE
     curJob.testPath = file.canonicalPath.replaceAll(/[\/A-z]*\/unittest/, ".")
     curJob.testName = file.name
     curJob.remoteCommand = "cd /www/netsite-docs/\nphpunit -c phpunit.xml ${curJob.testPath}/${curJob.testName}"
